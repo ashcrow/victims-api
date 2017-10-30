@@ -10,7 +10,7 @@ IMAGE_DATE_TAG := victims-api:$(BUILD_TIME)
 # Used during all builds
 LDFLAGS := -X main.version=${VERSION} -X main.commitHash=${COMMIT_HASH} -X main.buildTime=${BUILD_TIME}
 
-.PHONY: help clean victims-api image run-mongo stop-mongo run-victims
+.PHONY: help deps victims-api static-victims-api clean image gofmt golint lint
 
 default: help
 
