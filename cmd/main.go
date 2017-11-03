@@ -24,8 +24,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/victims/victims-api/api"
-	"github.com/victims/victims-api/db"
-	"github.com/victims/victims-api/log"
+	"github.com/victims/victims-common/db"
+	"github.com/victims/victims-common/log"
 	//	"github.com/victims/victims-api/middleware"
 )
 

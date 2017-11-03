@@ -19,13 +19,10 @@
 package api
 
 import (
-	"io"
-	"os"
-
 	"github.com/gin-gonic/gin"
-	"github.com/victims/victims-api/db"
-	"github.com/victims/victims-api/log"
-	"github.com/victims/victims-api/types"
+	"github.com/victims/victims-common/db"
+	"github.com/victims/victims-common/log"
+	"github.com/victims/victims-common/types"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -112,49 +109,8 @@ func DeepSearch(c *gin.Context) {
 	c.AbortWithStatus(404)
 }
 
-// Upload checks a provided package against the victims database
-func Upload(c *gin.Context) {
-	file, fileHeader, err := c.Request.FormFile("package")
-	if err != nil {
-		log.Logger.Infof("Error getting the file in upload: %s", err)
-		// Bad Request
-		c.AbortWithStatus(400)
-	}
-	defer file.Close()
-
-	// Write the file out to the file system
-	// TODO: Don't use the original name or /tmp
-	out, err := os.Create("/tmp/" + fileHeader.Filename + ".test")
-	defer out.Close()
-	if err != nil {
-		log.Logger.Fatal(err)
-	}
-	// Copy the content from the upload file to the file on disk
-	fileSize, err := io.Copy(out, file)
-	if err != nil {
-		log.Logger.Fatal(err)
-	}
-	log.Logger.Infof("%s: %vk", fileHeader.Filename, int64(fileSize/1024))
-	// TODO: Submit to hashing service
-	// TODO: Retrieve response and store in requestedHash
-	requestedHash := types.MultipleHashRequest{}
-	requestedHash.Hashes = append(requestedHash.Hashes, types.SingleHashRequest{
-		Hash: "a0a86214ea153fb07ff35ceec0848dd1703eae22de036a825efc8394e50f65e3044832f3b49cf7e45a39edc470bdf738abc36a3a78ca7df3a6e73c14eaef94a8",
-	})
-	// ----------
-	// Search for hashes
-	cves := deepSearch(requestedHash)
-	if cves.Size() > 0 {
-		c.JSON(200, cves)
-		return
-	}
-	// Fall through to a 404
-	c.AbortWithStatus(404)
-}
-
 // HashMounts mounts all hash related routes to a router
 func HashMounts(router *gin.Engine) {
 	router.POST("/search", SimpleSearch)
 	router.POST("/deepsearch", DeepSearch)
-	router.POST("/upload", Upload)
 }
